@@ -1,6 +1,7 @@
 from quart import Quart
 import RPi.GPIO as GPIO
 import subprocess
+import time
 
 GPIO.cleanup()
 
@@ -22,27 +23,26 @@ def restart():
     command = "/usr/bin/sudo /sbin/shutdown -r now"
     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
-    print output
+    print(output)
 
 def CreateWifiConfig(SSID, password):
-  config_lines = [
-    '\n',
-    'network={',
-    '\tssid="{}"'.format(SSID),
-    '\tpsk="{}"'.format(password),
-    '\tkey_mgmt=WPA-PSK',
-    '}'
-  ]
+    config_lines = [
+      '\n',
+      'network={',
+      '\tssid="{}"'.format(SSID),
+      '\tpsk="{}"'.format(password),
+      '}\n'
+    ]
 
-  config = '\n'.join(config_lines)
-  print(config)
+    config = '\n'.join(config_lines)
+    print(config)
 
-  with open("/etc/wpa_supplicant/wpa_supplicant.conf", "a+") as wifi:
-    wifi.write(config)
-  print("Wifi config added")
-  restart()
-
-
+    with open("/etc/wpa_supplicant/wpa_supplicant.conf", "a+") as wifi:
+        wifi.write(config)
+    print("Wifi config added")
+    time.sleep(2)
+    restart()
+ 
 # Test Endpoint
 @app.route("/v1/test")
 async def hello():
